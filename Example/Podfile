@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '13.0'
+
+target 'NetworkKit_Example' do
+  pod 'NetworkKit', :path => '../'
+
+  target 'NetworkKit_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

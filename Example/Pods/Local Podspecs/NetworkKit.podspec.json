@@ -1,0 +1,22 @@
+{
+  "name": "NetworkKit",
+  "version": "0.1.0",
+  "summary": "A short description of NetworkKit.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/nileshpra@gmail.com/NetworkKit",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "nileshpra@gmail.com": "3828906+nil4587@users.noreply.github.com"
+  },
+  "source": {
+    "git": "https://github.com/nileshpra@gmail.com/NetworkKit.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source_files": "NetworkKit/Classes/**/*"
+}
