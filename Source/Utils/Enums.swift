@@ -1,39 +1,32 @@
 //
-//  Configurations.swift
+//  Enums.swift
 //  NetworkKit
 //
-//  Created by Nileshkumar M. Prajapati on 2023/06/26.
+//  Created by Nileshkumar M. Prajapati on 2023/06/27.
 //
 
 import Foundation
-
-struct Configurations {
-    
-    struct API {
-        static let REQUEST_TIMEOUT: Double = 60
-    }
-    
-    /// A structure which keeps web-service request's keys
-    struct RequestHeaderKey {
-        static let ContentType_Key = "Content-Type"
-        static let ContentType_Value = "application/json"
-        static let Cache_Control_Key = "Cache-Control"
-        static let Cache_Control_Value = "no-cache"
-    }
-}
 
 // MARK: - ================================
 // MARK: Network Operation Enums
 // MARK: ================================
 
-enum HttpMethod: String, Codable {
+public enum NetworkKitError: Error {
+    case noresponse
+    case parsingfailed
+    case requestfailed
+    case urlfailure
+    case nodata
+}
+
+public enum HttpMethod: String, Codable {
     case get = "GET"
     case post = "POST"
     case put = "PUT"
     case delete = "DELETE"
 }
 
-enum HTTPResponseType {
+enum HTTPResponseType: Error {
     /// - informational: This class of status code indicates a provisional response, consisting only of the Status-Line and optional headers, and is terminated by an empty line.
     case informational
     /// - success: This class of status codes indicates the action requested by the client was received, understood, accepted, and processed successfully.
@@ -49,7 +42,7 @@ enum HTTPResponseType {
 }
 
 enum HTTPResponseCode: Int, Error {
-    
+
     // 100 Informational
     case Continue = 100
     case SwitchingProtocols
@@ -142,19 +135,5 @@ enum HTTPResponseCode: Int, Error {
                 return .undefined
                 
         }
-    }
-}
-
-// MARK: - ================================
-// MARK: HTTPURLResponse
-// MARK: ================================
-
-extension HTTPURLResponse {
-    var type: HTTPResponseType? {
-        return HTTPResponseCode(rawValue: statusCode)?.responseType
-    }
-    
-    var code: HTTPResponseCode {
-        return HTTPResponseCode(rawValue: statusCode) ?? .Unknown
     }
 }

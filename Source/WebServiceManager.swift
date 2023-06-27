@@ -7,20 +7,27 @@
 
 import Foundation
 
-struct Resource<T> {
+public struct Resource<T> {
     let url: URL
     let method: HttpMethod
     let body: Data?
     let parse: (Data) -> T?
+    
+    public init(url: URL, method: HttpMethod, body: Data?, parse: @escaping (Data) -> T?) {
+        self.url = url
+        self.method = method
+        self.body = body
+        self.parse = parse
+    }
 }
 
-final class WebServiceManager: NSObject {
+final public class WebServiceManager: NSObject {
     
     // MARK: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // MARK: Properties Declaration
     // MARK: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     
-    static let webServiceHelper = WebServiceManager()
+    public static let webServiceHelper = WebServiceManager()
     private var urlSession: URLSession {
         let config = URLSessionConfiguration.default
         config.multipathServiceType = .handover
@@ -28,7 +35,7 @@ final class WebServiceManager: NSObject {
         config.timeoutIntervalForResource = TimeInterval(timeOutInterval)
         return URLSession(configuration: config)
     }
-    private let timeOutInterval: Double = Configurations.API.REQUEST_TIMEOUT
+    private let timeOutInterval: Double = Configurations.Request.REQUEST_TIMEOUT
     private var task: URLSessionTask?
     
     // MARK: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -44,8 +51,8 @@ final class WebServiceManager: NSObject {
     }
     
     // A method to handle multiple web-service calls with completion handler
-    func fetchData<T>(resource: Resource<T>,
-                      completionHandler: @escaping (_ status: Bool, _ error: String?, _ object: T?) -> Void) {
+    public func fetchData<T>(resource: Resource<T>,
+                      completionHandler: @escaping (Result<T?, Error>) -> Void) {
         
         if task?.state == .running {
             task?.cancel()
@@ -64,15 +71,18 @@ final class WebServiceManager: NSObject {
                     let string = String(data: respondata, encoding: .utf8)
                     print(string as Any)
                 #endif
-                completionHandler(true, nil, resource.parse(respondata))
+                completionHandler(.success(resource.parse(respondata)))
             } else {
                 if let errr = error {
-                    completionHandler(false, errr.localizedDescription, nil)
-                } else if let statuscode = httpresponse?.code {
-                    let message = HTTPURLResponse.localizedString(forStatusCode: statuscode.rawValue)
-                    completionHandler(false, message, nil)
+                    completionHandler(.failure(errr))
                 } else {
-                    completionHandler(false, "Something went wrong", nil)
+                    guard let statuscode = httpresponse?.code,
+                            let type = httpresponse?.type else { return }
+
+                    #if DEBUG
+                        print(HTTPURLResponse.localizedString(forStatusCode: statuscode.rawValue))
+                    #endif
+                    completionHandler(.failure(type))
                 }
             }
         }
@@ -81,7 +91,7 @@ final class WebServiceManager: NSObject {
     
     // A method to handle multiple web-service calls with async await
     @available(iOS 15.0, *)
-    func fetchData<T>(resource: Resource<T>) async -> (Bool, String?, T?) {
+    public func fetchData<T>(resource: Resource<T>) async -> Result<T?, NetworkKitError> {
 
         var request = URLRequest(url: resource.url)
         request.httpBody = resource.body
@@ -91,7 +101,7 @@ final class WebServiceManager: NSObject {
         do {
             let (data, response) = try await urlSession.data(for: request)
             guard let httpresponse = response as? HTTPURLResponse else {
-                return (false, "Something went wrong", nil)
+                return .failure(.noresponse)
             }
             
             if httpresponse.type == .success {
@@ -99,14 +109,12 @@ final class WebServiceManager: NSObject {
                     let string = String(data: data, encoding: .utf8)
                     print(string as Any)
                 #endif
-                return (true, nil, resource.parse(data))
+                return .success(resource.parse(data))
             } else {
-                let message = HTTPURLResponse.localizedString(forStatusCode: httpresponse.code.rawValue)
-                return (false, message, nil)
+                return .failure(.nodata)
             }
-            
         } catch {
-            return (false, "Something went wrong", nil)
+            return .failure(.urlfailure)
         }
     }
 }
@@ -116,11 +124,11 @@ final class WebServiceManager: NSObject {
 // MARK: ================================
 
 extension WebServiceManager: URLSessionDelegate {
-    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+    public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         print(error?.localizedDescription as Any)
     }
     
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
     }
 }
 
