@@ -26,4 +26,4 @@ Nileshkumar Prajapati, 3828906+nil4587@users.noreply.github.com
 
 ## License
 
-NetworkKit is available under the MIT license. See the LICENSE file for more info.
+NetworkKit is available under the MIT license. See the [LICENSE](https://github.com/nil4587/NetworkKit/blob/main/LICENSE) file for more info.
