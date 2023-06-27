@@ -17,6 +17,7 @@ class ViewModel: ObservableObject {
 
     //MARK: - Methods
     
+    @MainActor
     func callWebservice() async {
         guard let url = URL(string: "https://openwhyd.org/hot/electro?format=json") else { return }
         
