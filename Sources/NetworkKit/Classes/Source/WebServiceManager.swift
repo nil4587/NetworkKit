@@ -30,7 +30,6 @@ final public class WebServiceManager: NSObject {
     public static let webServiceHelper = WebServiceManager()
     private var urlSession: URLSession {
         let config = URLSessionConfiguration.default
-        config.multipathServiceType = .handover
         config.timeoutIntervalForRequest = TimeInterval(timeOutInterval)
         config.timeoutIntervalForResource = TimeInterval(timeOutInterval)
         return URLSession(configuration: config)
@@ -91,6 +90,7 @@ final public class WebServiceManager: NSObject {
     
     // A method to handle multiple web-service calls with async await
     @available(iOS 15.0, *)
+    @available(macOS 12.0, *)
     public func fetchData<T>(resource: Resource<T>) async -> Result<T?, NetworkKitError> {
 
         var request = URLRequest(url: resource.url)
@@ -99,7 +99,7 @@ final public class WebServiceManager: NSObject {
         request.allHTTPHeaderFields = [Configurations.RequestHeaderKey.ContentType_Key: Configurations.RequestHeaderKey.ContentType_Value,
                                        Configurations.RequestHeaderKey.Cache_Control_Key : Configurations.RequestHeaderKey.Cache_Control_Value]
         do {
-            let (data, response) = try await urlSession.data(for: request)
+            let (data, response) = try await urlSession.data(for: request, delegate: self)
             guard let httpresponse = response as? HTTPURLResponse else {
                 return .failure(.noresponse)
             }
@@ -123,12 +123,12 @@ final public class WebServiceManager: NSObject {
 // MARK: URLSession Delegate Methods
 // MARK: ================================
 
-extension WebServiceManager: URLSessionDelegate {
+extension WebServiceManager: URLSessionDelegate, URLSessionTaskDelegate {
     public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         print(error?.localizedDescription as Any)
     }
     
-    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-    }
+    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {}
+    
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {}
 }
-

@@ -61,6 +61,17 @@
                ReferencedContainer = "container:NetworkKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DE12D9602A4B404800C0C0E0"
+               BuildableName = "NetworkKit_ExampleTests.xctest"
+               BlueprintName = "NetworkKit_ExampleTests"
+               ReferencedContainer = "container:NetworkKit.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
